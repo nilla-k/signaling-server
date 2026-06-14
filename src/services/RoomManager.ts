@@ -1,61 +1,65 @@
-import { Either, left, right } from "../types/utils.js"
-import { Player } from "./models/Player.js"
-import { Room } from "./models/Room.js"
+import { Either, left, right } from '../types/utils.js'
+import { Player } from './models/Player.js'
+import { Room } from './models/Room.js'
 
 class RoomManager {
-    private rooms: Map<string, Room> = new Map<string, Room>()
+	private rooms: Map<string, Room> = new Map<string, Room>()
 
-    public createRoom = (player: Player): Either<Error, string> => {
-        if (this.getPlayerRoom(player)) {
-            return left(Error(`Cannot create room - already in room ${this.getPlayerRoom(player)?.id}`))
-        }
+	public createRoom = (player: Player): Either<Error, string> => {
+		if (this.getPlayerRoom(player)) {
+			return left(
+				Error(
+					`Cannot create room - already in room ${this.getPlayerRoom(player)?.id}`,
+				),
+			)
+		}
 
-        const newRoom = new Room()
-        newRoom.players.push(player)
+		const newRoom = new Room()
+		newRoom.players.push(player)
 
-        this.rooms.set(newRoom.id, newRoom)
+		this.rooms.set(newRoom.id, newRoom)
 
-        return right(`Successfully created and joined room with id ${newRoom.id}`)
-    }
+		return right(`Successfully created and joined room with id ${newRoom.id}`)
+	}
 
-    public joinRoom = (roomId: string, player: Player): Either<Error, Room> => {
-        const maybeRoom = this.rooms.get(roomId.toUpperCase())
+	public joinRoom = (roomId: string, player: Player): Either<Error, Room> => {
+		const maybeRoom = this.rooms.get(roomId.toUpperCase())
 
-        if (maybeRoom) {
-            maybeRoom.players.push(player)
-            return right(maybeRoom)
-        } else {
-            return left(Error(`Room ${roomId} not found`))
-        }
-    }
+		if (maybeRoom) {
+			maybeRoom.players.push(player)
+			return right(maybeRoom)
+		} else {
+			return left(Error(`Room ${roomId} not found`))
+		}
+	}
 
-    public getRoom = (roomId: string) => {
-        return this.rooms.get(roomId.toUpperCase())
-    }
+	public getRoom = (roomId: string) => {
+		return this.rooms.get(roomId.toUpperCase())
+	}
 
-    public getStatus = (player: Player): string => {
-        for (const [key, value] of this.rooms.entries()) {
-            const isPlayerInRoom = value.players.some((p) => p.id === player.id);
-            
-            if (isPlayerInRoom) {
-                return `Player in room ${key}`;
-            }
-        }
+	public getStatus = (player: Player): string => {
+		for (const [key, value] of this.rooms.entries()) {
+			const isPlayerInRoom = value.players.some((p) => p.id === player.id)
 
-        return "Not joined room yet."
-    }
+			if (isPlayerInRoom) {
+				return `Player in room ${key}`
+			}
+		}
 
-    private getPlayerRoom = (player: Player): Room | null => {
-        for (const [key, value] of this.rooms.entries()) {
-            const isPlayerInRoom = value.players.some((p) => p.id === player.id);
-            
-            if (isPlayerInRoom) {
-                return value
-            }
-        }
+		return 'Not joined room yet.'
+	}
 
-        return null
-    }
+	private getPlayerRoom = (player: Player): Room | null => {
+		for (const [, value] of this.rooms.entries()) {
+			const isPlayerInRoom = value.players.some((p) => p.id === player.id)
+
+			if (isPlayerInRoom) {
+				return value
+			}
+		}
+
+		return null
+	}
 }
 
 export const roomManager = new RoomManager()
