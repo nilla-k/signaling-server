@@ -18,19 +18,19 @@ class RoomManager {
         return right(`Successfully created and joined room with id ${newRoom.id}`)
     }
 
-    public joinRoom = (roomId: string, player: Player): Either<Error, string> => {
-        const maybeRoom = this.rooms.get(roomId)
+    public joinRoom = (roomId: string, player: Player): Either<Error, Room> => {
+        const maybeRoom = this.rooms.get(roomId.toUpperCase())
 
         if (maybeRoom) {
             maybeRoom.players.push(player)
-            return right(`Successfully joined room ${maybeRoom.id}`)
+            return right(maybeRoom)
         } else {
             return left(Error(`Room ${roomId} not found`))
         }
     }
 
     public getRoom = (roomId: string) => {
-        return this.rooms.get(roomId)
+        return this.rooms.get(roomId.toUpperCase())
     }
 
     public getStatus = (player: Player): string => {

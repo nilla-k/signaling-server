@@ -15,7 +15,18 @@ export const handleMessage = (data: RawData, player: Player): Either<Error, stri
         case MessageType.JoinRoom:
           const roomId = message.body?.id
           if (roomId) {
-            return roomManager.joinRoom(roomId, player)
+            const errorOrRoom = roomManager.joinRoom(roomId, player)
+            if (errorOrRoom.tag === 'right') {
+              const room = errorOrRoom.value
+              room.players.forEach((p) => {
+                if (p.id !== player.id) {
+                  p.socket.send(`Player ${player.id} joined room ${room.id}`)
+                }
+              })
+              return right("Joined successfully")
+            } else {
+              return errorOrRoom
+            }
           } else {
             return left(Error("Room id missing from message body"))
           }

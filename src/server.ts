@@ -6,7 +6,7 @@ import { Player } from './services/models/Player.ts';
 const server = new WebSocketServer({port: 8080})
 
 server.on('connection', (socket) => {
-  const player = new Player()
+  const player = new Player(socket)
   
   console.log(`New client connected! Player ID ${player.id}`);
 
