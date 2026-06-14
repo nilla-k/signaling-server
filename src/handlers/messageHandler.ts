@@ -1,16 +1,27 @@
 import { RawData } from "ws";
 import { MessageType } from "../types/messages.js";
 import { Either, left, right } from "../types/utils.js";
+import { roomManager } from "../services/RoomManager.js";
+import { Player } from "../services/models/Player.js";
 
-export const handleMessage = (data: RawData): Either<Error, string> => {
+export const handleMessage = (data: RawData, player: Player): Either<Error, string> => {
     try { 
       const message = JSON.parse(data.toString());
 
       switch (message.type) {
         case MessageType.CreateRoom:
-          return right("Received request to create room")
+          return roomManager.createRoom(player)
+        
         case MessageType.JoinRoom:
-          return right(`Received request to join room, details: ${message.body} `)
+          const roomId = message.body?.id
+          if (roomId) {
+            return roomManager.joinRoom(roomId, player)
+          } else {
+            return left(Error("Room id missing from message body"))
+          }
+        
+        case MessageType.GetStatus:
+          return right(roomManager.getStatus(player)) 
         default:
           return left(Error("Received unknown or missing message type."))
       }

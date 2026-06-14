@@ -1,16 +1,19 @@
-import {WebSocketServer} from 'ws';
-import { handleMessage } from './handlers/messageHandler.js';
-import { Either } from './types/utils.js';
+import { WebSocketServer } from 'ws';
+import { handleMessage } from './handlers/messageHandler.ts';
+import { Either } from './types/utils.ts';
+import { Player } from './services/models/Player.ts';
 
 const server = new WebSocketServer({port: 8080})
 
 server.on('connection', (socket) => {
-  console.log('New client connected!');
+  const player = new Player()
+  
+  console.log(`New client connected! Player ID ${player.id}`);
 
   socket.on('message', (data) => {
-    console.log(`Received message: ${data}`);
+    console.log(`Received message: ${data} from player ${player.id}`);
     
-    const response: Either<Error, string> = handleMessage(data)
+    const response: Either<Error, string> = handleMessage(data, player)
 
     if (response.tag === 'left') {
       socket.send(`Error: ${response.error.message}`)
@@ -19,9 +22,8 @@ server.on('connection', (socket) => {
     }
   });
 
-
   socket.on('close', () => {
-    console.log('Client has disconnected.');
+    console.log(`Player ${player.id} has disconnected.`);
   });
 });
 

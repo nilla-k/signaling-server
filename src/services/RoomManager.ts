@@ -1,0 +1,61 @@
+import { Either, left, right } from "../types/utils.js"
+import { Player } from "./models/Player.js"
+import { Room } from "./models/Room.js"
+
+class RoomManager {
+    private rooms: Map<string, Room> = new Map<string, Room>()
+
+    public createRoom = (player: Player): Either<Error, string> => {
+        if (this.getPlayerRoom(player)) {
+            return left(Error(`Cannot create room - already in room ${this.getPlayerRoom(player)?.id}`))
+        }
+
+        const newRoom = new Room()
+        newRoom.players.push(player)
+
+        this.rooms.set(newRoom.id, newRoom)
+
+        return right(`Successfully created and joined room with id ${newRoom.id}`)
+    }
+
+    public joinRoom = (roomId: string, player: Player): Either<Error, string> => {
+        const maybeRoom = this.rooms.get(roomId)
+
+        if (maybeRoom) {
+            maybeRoom.players.push(player)
+            return right(`Successfully joined room ${maybeRoom.id}`)
+        } else {
+            return left(Error(`Room ${roomId} not found`))
+        }
+    }
+
+    public getRoom = (roomId: string) => {
+        return this.rooms.get(roomId)
+    }
+
+    public getStatus = (player: Player): string => {
+        for (const [key, value] of this.rooms.entries()) {
+            const isPlayerInRoom = value.players.some((p) => p.id === player.id);
+            
+            if (isPlayerInRoom) {
+                return `Player in room ${key}`;
+            }
+        }
+
+        return "Not joined room yet."
+    }
+
+    private getPlayerRoom = (player: Player): Room | null => {
+        for (const [key, value] of this.rooms.entries()) {
+            const isPlayerInRoom = value.players.some((p) => p.id === player.id);
+            
+            if (isPlayerInRoom) {
+                return value
+            }
+        }
+
+        return null
+    }
+}
+
+export const roomManager = new RoomManager()
