@@ -64,14 +64,17 @@ export const handleMessage = (
 			case MessageType.Offer: {
 				// Pass data directly between peers for any message for establishing RTC connection
 				const room = roomManager.getRoom(message.roomId)
-				const targetPlayer = room?.players.find((p) => p.id === message.peer)
-
-				if (targetPlayer) {
-					targetPlayer.socket.send(JSON.stringify(message))
+				if (room) {
+					const targetPlayer = room?.players.find((p) => p.id === message.peer.toString())
+					console.log(`target player `, targetPlayer)
+					if (targetPlayer) {
+						targetPlayer.socket.send(JSON.stringify(message))
+					} else {
+						return left(Error("Error finding peer: player not found"))
+					}
 				} else {
-					return left(Error("Error finding peer"))
+					return left(Error("Error finding peer: room not found"))
 				}
-
 				return right("")
 			}
 			default:
