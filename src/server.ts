@@ -3,7 +3,8 @@ import { handleMessage } from './handlers/messageHandler.ts'
 import { Either } from './types/utils.ts'
 import { Player } from './services/models/Player.ts'
 
-const server = new WebSocketServer({ port: 8080 })
+const port = 8080
+const server = new WebSocketServer({ port: port })
 
 server.on('connection', (socket) => {
 	const player = new Player(socket)
@@ -27,4 +28,4 @@ server.on('connection', (socket) => {
 	})
 })
 
-console.log('WebSocket server is running on ws://localhost:5000')
+console.log(`WebSocket server is running on ws://localhost:${port}`)
