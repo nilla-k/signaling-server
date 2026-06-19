@@ -1,3 +1,4 @@
+import { Message, MessageType } from '../types/messages.ts'
 import { Either, left, right } from '../types/utils.js'
 import { Player } from './models/Player.js'
 import { Room } from './models/Room.js'
@@ -19,7 +20,15 @@ class RoomManager {
 
 		this.rooms.set(newRoom.id, newRoom)
 
-		return right(`Successfully created and joined room with id ${newRoom.id}`)
+		const successMessage: Message = {
+			type: MessageType.RoomCreated,
+			data: {
+				roomId: newRoom.id,
+				hostId: player.id
+			}
+		}
+
+		return right(JSON.stringify(successMessage))
 	}
 
 	public joinRoom = (roomId: string, player: Player): Either<Error, Room> => {
