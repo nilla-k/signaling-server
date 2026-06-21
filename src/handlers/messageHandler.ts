@@ -6,7 +6,7 @@ import { Player } from '../services/models/Player.js'
 
 export const handleMessage = (
 	data: RawData,
-	player: Player,
+	player: Player
 ): Either<Error, string> => {
 	try {
 		const message = JSON.parse(data.toString())
@@ -28,20 +28,20 @@ export const handleMessage = (
 								type: MessageType.PlayerConnected,
 								data: {
 									id: player.id,
-									room: room.id
-								}
+									room: room.id,
+								},
 							}
 							if (p.id !== player.id) {
 								p.socket.send(JSON.stringify(newPlayerMessage))
 							}
-							
+
 							// send existing player info to new player
 							const existingPlayersMessage: Message = {
 								type: MessageType.PlayerConnected,
 								data: {
 									id: p.id,
-									room: room.id
-								}
+									room: room.id,
+								},
 							}
 							if (p.id !== player.id) {
 								player.socket.send(JSON.stringify(existingPlayersMessage))
@@ -50,8 +50,8 @@ export const handleMessage = (
 						const successMessage: Message = {
 							type: MessageType.JoinedRoom,
 							data: {
-								room: room.id
-							}
+								room: room.id,
+							},
 						}
 						return right(JSON.stringify(successMessage))
 					} else {
@@ -70,17 +70,19 @@ export const handleMessage = (
 				// Pass data directly between peers for any message for establishing RTC connection
 				const room = roomManager.getRoom(message.roomId)
 				if (room) {
-					const targetPlayer = room?.players.find((p) => p.id === message.peer.toString())
+					const targetPlayer = room?.players.find(
+						(p) => p.id === message.peer.toString()
+					)
 					console.log(`target player `, targetPlayer)
 					if (targetPlayer) {
 						targetPlayer.socket.send(JSON.stringify(message))
 					} else {
-						return left(Error("Error finding peer: player not found"))
+						return left(Error('Error finding peer: player not found'))
 					}
 				} else {
-					return left(Error("Error finding peer: room not found"))
+					return left(Error('Error finding peer: room not found'))
 				}
-				return right("")
+				return right('')
 			}
 			default:
 				return left(Error('Received unknown or missing message type.'))

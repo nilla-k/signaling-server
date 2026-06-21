@@ -10,8 +10,8 @@ class RoomManager {
 		if (this.getPlayerRoom(player)) {
 			return left(
 				Error(
-					`Cannot create room - already in room ${this.getPlayerRoom(player)?.id}`,
-				),
+					`Cannot create room - already in room ${this.getPlayerRoom(player)?.id}`
+				)
 			)
 		}
 
@@ -24,8 +24,8 @@ class RoomManager {
 			type: MessageType.RoomCreated,
 			data: {
 				roomId: newRoom.id,
-				hostId: player.id
-			}
+				hostId: player.id,
+			},
 		}
 
 		return right(JSON.stringify(successMessage))

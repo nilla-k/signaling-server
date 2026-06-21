@@ -15,8 +15,8 @@ server.on('connection', (socket) => {
 	const startMessage: Message = {
 		type: MessageType.ConnectionStart,
 		data: {
-			id: player.id
-		}
+			id: player.id,
+		},
 	}
 	socket.send(JSON.stringify(startMessage))
 
@@ -30,8 +30,8 @@ server.on('connection', (socket) => {
 			const errorMessage: Message = {
 				type: MessageType.Error,
 				data: {
-					message: response.error.message
-				}
+					message: response.error.message,
+				},
 			}
 			socket.send(JSON.stringify(errorMessage))
 		} else {

@@ -1,7 +1,7 @@
 /**
  * These values must align with the same number and order of values
- * defined in the Godot client. 
- * 
+ * defined in the Godot client.
+ *
  * Because of the numbers, you see. Pesky numbers.
  */
 export enum MessageType {
