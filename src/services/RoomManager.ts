@@ -3,9 +3,17 @@ import { Either, left, right } from '../types/utils.js'
 import { Player } from './models/Player.js'
 import { Room } from './models/Room.js'
 
+/**
+ * Singleton used for managing the creation and joining of rooms. 
+ */
 class RoomManager {
 	private rooms: Map<string, Room> = new Map<string, Room>()
 
+	/**
+	 * 
+	 * @param player - Player which is creating the room.
+	 * @returns A string with RoomCreated message containing room ID and host ID on success, Error if player is already in an existing room.
+	 */
 	public createRoom = (player: Player): Either<Error, string> => {
 		if (this.getPlayerRoom(player)) {
 			return left(
@@ -31,6 +39,12 @@ class RoomManager {
 		return right(JSON.stringify(successMessage))
 	}
 
+	/**
+	 * Adds player to room
+	 * @param roomId - ID of room to join
+	 * @param player - Player object to add
+	 * @returns Room that was joined on sucess, Error if room is not found
+	 */
 	public joinRoom = (roomId: string, player: Player): Either<Error, Room> => {
 		const maybeRoom = this.rooms.get(roomId.toUpperCase())
 
@@ -42,10 +56,20 @@ class RoomManager {
 		}
 	}
 
+	/**
+	 * Get room by ID.
+	 * @param roomId 
+	 * @returns Room object if exists
+	 */
 	public getRoom = (roomId: string) => {
 		return this.rooms.get(roomId.toUpperCase())
 	}
 
+	/**
+	 * Check whether a player has joined a room.
+	 * @param player - Player object to check
+	 * @returns String message indicating player status.
+	 */
 	public getStatus = (player: Player): string => {
 		for (const [key, value] of this.rooms.entries()) {
 			const isPlayerInRoom = value.players.some((p) => p.id === player.id)
