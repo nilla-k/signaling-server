@@ -24,7 +24,7 @@ export const handleMessage = (
 
 						room.players.forEach((p) => {
 							// send new player info to existing players
-							const newPlayerMessage: Message = {
+							const newPlayerConnected: Message = {
 								type: MessageType.PlayerConnected,
 								data: {
 									id: player.id,
@@ -32,11 +32,11 @@ export const handleMessage = (
 								},
 							}
 							if (p.id !== player.id) {
-								p.socket.send(JSON.stringify(newPlayerMessage))
+								p.socket.send(JSON.stringify(newPlayerConnected))
 							}
 
 							// send existing player info to new player
-							const existingPlayersMessage: Message = {
+							const existingPlayerConnected: Message = {
 								type: MessageType.PlayerConnected,
 								data: {
 									id: p.id,
@@ -44,7 +44,7 @@ export const handleMessage = (
 								},
 							}
 							if (p.id !== player.id) {
-								player.socket.send(JSON.stringify(existingPlayersMessage))
+								player.socket.send(JSON.stringify(existingPlayerConnected))
 							}
 						})
 						const successMessage: Message = {
