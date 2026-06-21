@@ -1,22 +1,48 @@
-import {WebSocketServer} from 'ws';
+import { WebSocketServer } from 'ws'
+import { handleMessage } from './handlers/messageHandler.ts'
+import { Either } from './types/utils.ts'
+import { Player } from './services/models/Player.ts'
+import { Message, MessageType } from './types/messages.ts'
 
-const server = new WebSocketServer({port: 8080})
+const port = 8080
+const server = new WebSocketServer({ port: port })
 
 server.on('connection', (socket) => {
-  console.log('New client connected!');
+	const player = new Player(socket)
 
-  // Listen for incoming messages from the client
-  socket.on('message', (message) => {
-    console.log(`Received message: ${message}`);
-    
-    // Send a response back to the client
-    socket.send(`Server received: ${message}`);
-  });
+	// Acknowledge connection success
+	console.log(`New client connected! Player ID ${player.id}`)
+	const startMessage: Message = {
+		type: MessageType.ConnectionStart,
+		data: {
+			id: player.id,
+		},
+	}
+	socket.send(JSON.stringify(startMessage))
 
-  // Handle client disconnection
-  socket.on('close', () => {
-    console.log('Client has disconnected.');
-  });
-});
+	// Message handling
+	socket.on('message', (data) => {
+		console.log(`Received message: ${data} from player ${player.id}`)
 
-console.log('WebSocket server is running on ws://localhost:5000');
+		const response: Either<Error, string> = handleMessage(data, player)
+
+		if (response.tag === 'left') {
+			const errorMessage: Message = {
+				type: MessageType.Error,
+				data: {
+					message: response.error.message,
+				},
+			}
+			socket.send(JSON.stringify(errorMessage))
+		} else {
+			socket.send(response.value)
+		}
+	})
+
+	socket.on('close', () => {
+		// TODO: Cleanup hosted rooms on connection close
+		console.log(`Player ${player.id} has disconnected.`)
+	})
+})
+
+console.log(`WebSocket server is running on ws://localhost:${port}`)

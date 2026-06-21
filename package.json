@@ -1,31 +1,39 @@
 {
-  "name": "signaling-server",
-  "version": "1.0.0",
-  "description": "This will one day be a signaling server and it will be good",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsx src/server.ts"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nilla-k/signaling-server.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/nilla-k/signaling-server/issues"
-  },
-  "homepage": "https://github.com/nilla-k/signaling-server#readme",
-  "dependencies": {
-    "ws": "^8.21.0"
-  },
-  "devDependencies": {
-    "@types/node": "^25.9.3",
-    "@types/ws": "^8.18.1",
-    "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
-  }
+	"name": "signaling-server",
+	"version": "1.0.0",
+	"description": "This will one day be a signaling server and it will be good",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "tsx --watch src/server.ts",
+		"lint": "npx eslint .",
+		"lint:fix": "npx eslint --fix",
+		"format": "npx prettier --write ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nilla-k/signaling-server.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/nilla-k/signaling-server/issues"
+	},
+	"homepage": "https://github.com/nilla-k/signaling-server#readme",
+	"dependencies": {
+		"ws": "^8.21.0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@types/node": "^25.9.3",
+		"@types/ws": "^8.18.1",
+		"eslint": "^10.5.0",
+		"globals": "^17.6.0",
+		"jiti": "^2.7.0",
+		"tsx": "^4.22.4",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.61.0"
+	}
 }
