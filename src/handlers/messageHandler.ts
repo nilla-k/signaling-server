@@ -75,9 +75,7 @@ export const handleMessage = (
 					return left(Error('Error finding peer: room not found'))
 				}
 
-				const targetPlayer = room.players.find(
-					(p) => p.id === message.peer.toString()
-				)
+				const targetPlayer = room.players.get(message.peer.toString())
 
 				if (!targetPlayer) {
 					return left(Error('Error finding peer: player not found'))

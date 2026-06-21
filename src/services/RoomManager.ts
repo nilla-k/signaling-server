@@ -24,7 +24,7 @@ class RoomManager {
 		}
 
 		const newRoom = new Room()
-		newRoom.players.push(player)
+		newRoom.players.set(player.id, player)
 
 		this.rooms.set(newRoom.id, newRoom)
 
@@ -49,7 +49,7 @@ class RoomManager {
 		const maybeRoom = this.rooms.get(roomId.toUpperCase())
 
 		if (maybeRoom) {
-			maybeRoom.players.push(player)
+			maybeRoom.players.set(player.id, player)
 			return right(maybeRoom)
 		} else {
 			return left(Error(`Room ${roomId} not found`))
@@ -72,9 +72,9 @@ class RoomManager {
 	 */
 	public getStatus = (player: Player): string => {
 		for (const [key, value] of this.rooms.entries()) {
-			const isPlayerInRoom = value.players.some((p) => p.id === player.id)
+			const maybePlayer = value.players.get(player.id)
 
-			if (isPlayerInRoom) {
+			if (maybePlayer) {
 				return `Player in room ${key}`
 			}
 		}
@@ -84,9 +84,9 @@ class RoomManager {
 
 	private getPlayerRoom = (player: Player): Room | null => {
 		for (const [, value] of this.rooms.entries()) {
-			const isPlayerInRoom = value.players.some((p) => p.id === player.id)
+			const maybePlayer = value.players.get(player.id)
 
-			if (isPlayerInRoom) {
+			if (maybePlayer) {
 				return value
 			}
 		}
