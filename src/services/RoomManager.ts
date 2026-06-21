@@ -4,13 +4,13 @@ import { Player } from './models/Player.js'
 import { Room } from './models/Room.js'
 
 /**
- * Singleton used for managing the creation and joining of rooms. 
+ * Singleton used for managing the creation and joining of rooms.
  */
 class RoomManager {
 	private rooms: Map<string, Room> = new Map<string, Room>()
 
 	/**
-	 * 
+	 *
 	 * @param player - Player which is creating the room.
 	 * @returns A string with RoomCreated message containing room ID and host ID on success, Error if player is already in an existing room.
 	 */
@@ -58,7 +58,7 @@ class RoomManager {
 
 	/**
 	 * Get room by ID.
-	 * @param roomId 
+	 * @param roomId
 	 * @returns Room object if exists
 	 */
 	public getRoom = (roomId: string) => {
