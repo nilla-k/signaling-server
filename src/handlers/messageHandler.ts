@@ -47,8 +47,13 @@ export const handleMessage = (
 								player.socket.send(JSON.stringify(existingPlayersMessage))
 							}
 						})
-
-						return right('Joined successfully')
+						const successMessage: Message = {
+							type: MessageType.JoinedRoom,
+							data: {
+								room: room.id
+							}
+						}
+						return right(JSON.stringify(successMessage))
 					} else {
 						return errorOrRoom
 					}
