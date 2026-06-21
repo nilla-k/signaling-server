@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+IMAGE="signaling-server"
+CONTAINER="signaling-server-app"
+APP_PORT=8080
+HOST_PORT=8080
+
+docker build -t "$IMAGE" .
+
+if [ "$(docker ps -aq -f name=$CONTAINER)" ]; then
+    echo "Stopping and removing existing container..."
+    docker rm -f "$CONTAINER"
+fi
+
+docker run -it \
+  --name "$CONTAINER" \
+  -e PORT="$APP_PORT" \
+  -p "$HOST_PORT":"$APP_PORT" \
+  "$IMAGE"

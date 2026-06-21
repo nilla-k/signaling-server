@@ -4,7 +4,7 @@ import { Either } from './types/utils.ts'
 import { Player } from './services/models/Player.ts'
 import { Message, MessageType } from './types/messages.ts'
 
-const port = 8080
+const port = Number(process.env.port) || 8080
 const server = new WebSocketServer({ port: port })
 
 server.on('connection', (socket) => {
