@@ -17,49 +17,51 @@ export const handleMessage = (
 
 			case MessageType.JoinRoom: {
 				const roomId = message.data?.id
-				if (roomId) {
-					const errorOrRoom = roomManager.joinRoom(roomId, player)
-					if (errorOrRoom.tag === 'right') {
-						const room = errorOrRoom.value
-
-						room.players.forEach((p) => {
-							// send new player info to existing players
-							const newPlayerConnected: Message = {
-								type: MessageType.PlayerConnected,
-								data: {
-									id: player.id,
-									room: room.id,
-								},
-							}
-							if (p.id !== player.id) {
-								p.socket.send(JSON.stringify(newPlayerConnected))
-							}
-
-							// send existing player info to new player
-							const existingPlayerConnected: Message = {
-								type: MessageType.PlayerConnected,
-								data: {
-									id: p.id,
-									room: room.id,
-								},
-							}
-							if (p.id !== player.id) {
-								player.socket.send(JSON.stringify(existingPlayerConnected))
-							}
-						})
-						const successMessage: Message = {
-							type: MessageType.JoinedRoom,
-							data: {
-								room: room.id,
-							},
-						}
-						return right(JSON.stringify(successMessage))
-					} else {
-						return errorOrRoom
-					}
-				} else {
+				if (!roomId) {
 					return left(Error('Room ID missing from message body'))
 				}
+				
+				const errorOrRoom = roomManager.joinRoom(roomId, player)
+				if (errorOrRoom.tag === 'left') {
+					return errorOrRoom
+				}
+				
+				const room = errorOrRoom.value
+				room.players.forEach((p) => {
+					// send new player info to existing players
+					const newPlayerConnected: Message = {
+						type: MessageType.PlayerConnected,
+						data: {
+							id: player.id,
+							room: room.id,
+						},
+					}
+					if (p.id !== player.id) {
+						p.socket.send(JSON.stringify(newPlayerConnected))
+					}
+
+					// send existing player info to new player
+					const existingPlayerConnected: Message = {
+						type: MessageType.PlayerConnected,
+						data: {
+							id: p.id,
+							room: room.id,
+						},
+					}
+					if (p.id !== player.id) {
+						player.socket.send(JSON.stringify(existingPlayerConnected))
+					}
+				})
+
+				const successMessage: Message = {
+					type: MessageType.JoinedRoom,
+					data: {
+						room: room.id,
+					},
+				}
+
+				return right(JSON.stringify(successMessage))
+				
 			}
 			case MessageType.GetStatus:
 				return right(roomManager.getStatus(player))
@@ -69,19 +71,20 @@ export const handleMessage = (
 			case MessageType.Offer: {
 				// Pass data directly between peers for any message for establishing RTC connection
 				const room = roomManager.getRoom(message.roomId)
-				if (room) {
-					const targetPlayer = room?.players.find(
-						(p) => p.id === message.peer.toString()
-					)
-					console.log(`target player `, targetPlayer)
-					if (targetPlayer) {
-						targetPlayer.socket.send(JSON.stringify(message))
-					} else {
-						return left(Error('Error finding peer: player not found'))
-					}
-				} else {
+				if (!room) {
 					return left(Error('Error finding peer: room not found'))
 				}
+
+				const targetPlayer = room.players.find(
+					(p) => p.id === message.peer.toString()
+				)
+
+				if (!targetPlayer) {
+					return left(Error('Error finding peer: player not found'))
+				}
+
+				targetPlayer.socket.send(JSON.stringify(message))
+
 				return right('')
 			}
 			default:
