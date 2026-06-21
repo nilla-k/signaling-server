@@ -13,26 +13,35 @@ export const handleMessage = (
 
 		switch (message.type) {
 			case MessageType.CreateRoom:
+				if (message.data.name) {
+					player.setName(message.data.name)
+				}
+				console.log(`creating room for player ${player.name}`)
 				return roomManager.createRoom(player)
 
 			case MessageType.JoinRoom: {
-				const roomId = message.data?.id
+				if (message.data.name) {
+					player.setName(message.data.name)
+				}
+
+				const roomId = message.data?.roomId
 				if (!roomId) {
 					return left(Error('Room ID missing from message body'))
 				}
-				
+
 				const errorOrRoom = roomManager.joinRoom(roomId, player)
 				if (errorOrRoom.tag === 'left') {
 					return errorOrRoom
 				}
-				
+
 				const room = errorOrRoom.value
 				room.players.forEach((p) => {
 					// send new player info to existing players
 					const newPlayerConnected: Message = {
 						type: MessageType.PlayerConnected,
 						data: {
-							id: player.id,
+							playerId: player.id,
+							playerName: player.name,
 							room: room.id,
 						},
 					}
@@ -44,7 +53,8 @@ export const handleMessage = (
 					const existingPlayerConnected: Message = {
 						type: MessageType.PlayerConnected,
 						data: {
-							id: p.id,
+							playerId: p.id,
+							playerName: p.name,
 							room: room.id,
 						},
 					}
@@ -61,7 +71,6 @@ export const handleMessage = (
 				}
 
 				return right(JSON.stringify(successMessage))
-				
 			}
 			case MessageType.GetStatus:
 				return right(roomManager.getStatus(player))
