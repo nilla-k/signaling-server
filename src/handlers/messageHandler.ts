@@ -16,7 +16,7 @@ export const handleMessage = (
 				if (message.data.name) {
 					player.setName(message.data.name)
 				}
-				console.log(`creating room for player ${player.name}`)
+
 				return roomManager.createRoom(player)
 
 			case MessageType.JoinRoom: {
