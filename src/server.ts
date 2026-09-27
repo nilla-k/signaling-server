@@ -22,8 +22,6 @@ server.on('connection', (socket) => {
 
 	// Message handling
 	socket.on('message', (data) => {
-		console.log(`Received message: ${data} from player ${player.id}`)
-
 		const response: Either<Error, string> = handleMessage(data, player)
 
 		if (response.tag === 'left') {
