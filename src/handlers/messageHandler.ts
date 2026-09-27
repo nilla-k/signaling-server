@@ -10,6 +10,14 @@ export const handleMessage = (
 ): Either<Error, string> => {
 	try {
 		const message = JSON.parse(data.toString())
+		if (
+			message.type !== MessageType.Answer &&
+			message.type !== MessageType.Offer &&
+			message.type !== MessageType.Candidate
+		) {
+			console.log(`Received message: ${data} from player ${player.id}`)
+		}
+
 
 		switch (message.type) {
 			case MessageType.CreateRoom:
