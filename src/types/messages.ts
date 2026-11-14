@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 /**
  * These values must align with the same number and order of values
  * defined in the Godot client.
@@ -18,60 +20,133 @@ export enum MessageType {
 	Error = 10,
 }
 
-export interface Message {
-	type: MessageType
-	data: object
-}
+// Application messages
 
-export interface ConnectionStartMessage extends Message {
-	type: MessageType.ConnectionStart,
-	data: {
-		playerId: string, // TODO: Key changed, need to update client
-	}
-}
+export const ConnectionStartMessageSchema = z.object({
+  type: z.literal(MessageType.ConnectionStart),
+  data: z.object({
+    playerId: z.string(),
+  }).strict(),
+}).strict();
 
-export interface CreateRoomMessage extends Message {
-	type: MessageType.CreateRoom,
-	data: {
-		playerName: string, // TODO: Key changed, need to update client
-	}
-}
+export const CreateRoomMessageSchema = z.object({
+  type: z.literal(MessageType.CreateRoom),
+  data: z.object({
+    playerName: z.string(),
+  }).strict(),
+}).strict();
 
-export interface RoomCreatedMessage extends Message {
-	type: MessageType.RoomCreated,
-	data: {
-		roomId: string,
-		hostId: string
-	}
-}
+export const RoomCreatedMessageSchema = z.object({
+  type: z.literal(MessageType.RoomCreated),
+  data: z.object({
+    roomId: z.string(),
+    hostId: z.string(),
+  }).strict(),
+}).strict();
 
-export interface JoinRoomMessage extends Message {
-	type: MessageType.JoinRoom
-	data: {
-		roomId: string,
-		playerName: string, // TODO: Key changed, need to update client
-	}
-}
+export const JoinRoomMessageSchema = z.object({
+  type: z.literal(MessageType.JoinRoom),
+  data: z.object({
+    roomId: z.string(),
+    playerName: z.string(),
+  }).strict(),
+}).strict();
 
-export interface PlayerConnectedMessage extends Message {
-	type: MessageType.PlayerConnected,
-	data: {
-		playerId: string,
-		playerName: string,
-		roomId: string // TODO: Key changed, need to update client
-	}
-}
+export const GetStatusMessageSchema = z.object({
+  type: z.literal(MessageType.GetStatus),
+  data: z.object({}).strict(),
+}).strict();
 
-export interface JoinedRoomMessage extends Message {
-	type: MessageType.JoinedRoom,
-	data: {
-		roomId: string // TODO: Key changed, need to update client
-	}
-}
+export const PlayerConnectedMessageSchema = z.object({
+  type: z.literal(MessageType.PlayerConnected),
+  data: z.object({
+    playerId: z.string(),
+    playerName: z.string(),
+    roomId: z.string(),
+  }).strict(),
+}).strict();
 
-export interface ErrorMessage extends Message {
-	type: MessageType.Error,
-	data: {
-		message: string
-	}
-}
+export const JoinedRoomMessageSchema = z.object({
+  type: z.literal(MessageType.JoinedRoom),
+  data: z.object({
+    roomId: z.string(),
+  }).strict(),
+}).strict();
+
+export const ErrorMessageSchema = z.object({
+  type: z.literal(MessageType.Error),
+  data: z.object({
+    message: z.string(),
+  }).strict(),
+}).strict();
+
+// WebRTC signalling messages
+
+export const OfferMessageSchema = z.object({
+  type: z.literal(MessageType.Offer),
+  peer: z.string(),
+  orgPeer: z.string(),
+  data: z.object({
+    type: z.string(),
+    sdp: z.string(),
+  }),
+  roomId: z.string(),
+}).strict();
+
+export const AnswerMessageSchema = z.object({
+  type: z.literal(MessageType.Answer),
+  peer: z.string(),
+  orgPeer: z.string(),
+  data: z.object({
+    type: z.string(),
+    sdp: z.string(),
+  }),
+  roomId: z.string(),
+}).strict();
+
+export const CandidateMessageSchema = z.object({
+  type: z.literal(MessageType.Candidate),
+  peer: z.string(),
+  orgPeer: z.string(),
+  mid: z.string().nullable(),
+  index: z.number().int().nonnegative().nullable(),
+  sdp: z.string(),
+  roomId: z.string(),
+}).strict();
+
+// Combined schema
+export const MessageSchema = z.discriminatedUnion("type", [
+  ConnectionStartMessageSchema,
+  CreateRoomMessageSchema,
+  RoomCreatedMessageSchema,
+  JoinRoomMessageSchema,
+  GetStatusMessageSchema,
+  PlayerConnectedMessageSchema,
+  JoinedRoomMessageSchema,
+  ErrorMessageSchema,
+  OfferMessageSchema,
+  AnswerMessageSchema,
+  CandidateMessageSchema,
+]);
+
+// Inferred types
+
+export type ConnectionStartMessage = z.infer<typeof ConnectionStartMessageSchema>;
+export type CreateRoomMessage = z.infer<typeof CreateRoomMessageSchema>;
+export type RoomCreatedMessage = z.infer<typeof RoomCreatedMessageSchema>;
+export type JoinRoomMessage = z.infer<typeof JoinRoomMessageSchema>;
+export type GetStatusMessage = z.infer<typeof GetStatusMessageSchema>;
+export type PlayerConnectedMessage = z.infer<typeof PlayerConnectedMessageSchema>;
+export type JoinedRoomMessage = z.infer<typeof JoinedRoomMessageSchema>;
+export type ErrorMessage = z.infer<typeof ErrorMessageSchema>;
+
+export type OfferMessage = z.infer<typeof OfferMessageSchema>;
+export type AnswerMessage = z.infer<typeof AnswerMessageSchema>;
+export type CandidateMessage = z.infer<typeof CandidateMessageSchema>;
+
+export type SignallingMessage =
+  | OfferMessage
+  | AnswerMessage
+  | CandidateMessage;
+
+export type Message = z.infer<typeof MessageSchema>;

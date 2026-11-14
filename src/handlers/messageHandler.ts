@@ -1,5 +1,5 @@
 import { RawData } from 'ws'
-import { JoinedRoomMessage, MessageType, PlayerConnectedMessage } from '../types/messages.js'
+import { JoinedRoomMessage, MessageSchema, MessageType, PlayerConnectedMessage } from '../types/messages.js'
 import { Either, left, right } from '../types/utils.js'
 import { roomManager } from '../services/RoomManager.js'
 import { Player } from '../services/models/Player.js'
@@ -9,7 +9,14 @@ export const handleMessage = (
 	player: Player
 ): Either<Error, string> => {
 	try {
-		const message = JSON.parse(data.toString())
+		const parsed = JSON.parse(data.toString())
+		const result = MessageSchema.safeParse(parsed)
+		if (!result.success) {
+			throw Error(`Invalid message schema received: ${JSON.stringify(result.error.issues)}`)
+		}
+
+		const message = result.data
+		
 		if (
 			message.type !== MessageType.Answer &&
 			message.type !== MessageType.Offer &&
@@ -18,18 +25,17 @@ export const handleMessage = (
 			console.log(`Received message: ${data} from player ${player.id}`)
 		}
 
-
 		switch (message.type) {
 			case MessageType.CreateRoom:
-				if (message.data.name) {
-					player.setName(message.data.name)
+				if (message.data.playerName) {
+					player.setName(message.data.playerName)
 				}
 
 				return roomManager.createRoom(player)
 
 			case MessageType.JoinRoom: {
-				if (message.data.name) {
-					player.setName(message.data.name)
+				if (message.data.playerName) {
+					player.setName(message.data.playerName)
 				}
 
 				const roomId = message.data?.roomId
