@@ -1,0 +1,379 @@
+asyncapi: 3.1.0
+info:
+  title: Multiplayer Signalling Server
+  version: 1.0.0
+  description: |
+    WebSocket API for Godot multiplayer room management
+    and WebRTC peer-to-peer signalling.
+
+    Message type numeric values must remain aligned
+    with the Godot client enum.
+servers:
+  local:
+    host: 'localhost:3000'
+    protocol: ws
+    description: WebSocket signalling server
+channels:
+  send:
+    address: /
+    messages:
+      ConnectionStart:
+        $ref: '#/components/messages/ConnectionStart'
+      RoomCreated:
+        $ref: '#/components/messages/RoomCreated'
+      PlayerConnected:
+        $ref: '#/components/messages/PlayerConnected'
+      JoinedRoom:
+        $ref: '#/components/messages/JoinedRoom'
+      Error:
+        $ref: '#/components/messages/Error'
+  receive:
+    address: /
+    messages:
+      CreateRoom:
+        $ref: '#/components/messages/CreateRoom'
+      JoinRoom:
+        $ref: '#/components/messages/JoinRoom'
+      GetStatus:
+        $ref: '#/components/messages/GetStatus'
+  relay:
+    address: /
+    messages:
+      Offer:
+        $ref: '#/components/messages/Offer'
+      Answer:
+        $ref: '#/components/messages/Answer'
+      Candidate:
+        $ref: '#/components/messages/Candidate'
+operations:
+  receiveMessage:
+    action: receive
+    channel:
+      $ref: '#/channels/receive'
+    summary: Receive messages from Godot clients
+    description: |
+      Receives room management messages from connected clients.
+  sendMessage:
+    action: send
+    channel:
+      $ref: '#/channels/send'
+    summary: Send messages to Godot clients
+    description: |
+      Sends room management events, peer notifications, and 
+      errors to connected clients.
+  relayMessage:
+    action: receive
+    channel:
+      $ref: '#/channels/relay'
+    summary: Relays messages between Godot clients
+    description: |
+      Relays WebRTC signalling messages between connected clients.
+components:
+  messages:
+    ConnectionStart:
+      name: ConnectionStart
+      title: Connection Start
+      summary: Client establishes its player identity.
+      payload:
+        $ref: '#/components/schemas/ConnectionStartMessage'
+    CreateRoom:
+      name: CreateRoom
+      title: Create Room
+      summary: Client requests creation of a room.
+      payload:
+        $ref: '#/components/schemas/CreateRoomMessage'
+    RoomCreated:
+      name: RoomCreated
+      title: Room Created
+      summary: Server confirms room creation.
+      payload:
+        $ref: '#/components/schemas/RoomCreatedMessage'
+    JoinRoom:
+      name: JoinRoom
+      title: Join Room
+      summary: Client requests to join an existing room.
+      payload:
+        $ref: '#/components/schemas/JoinRoomMessage'
+    GetStatus:
+      name: GetStatus
+      title: Get Status
+      summary: Client requests server status.
+      payload:
+        $ref: '#/components/schemas/GetStatusMessage'
+    PlayerConnected:
+      name: PlayerConnected
+      title: Player Connected
+      summary: Notifies clients that a player has connected.
+      payload:
+        $ref: '#/components/schemas/PlayerConnectedMessage'
+    JoinedRoom:
+      name: JoinedRoom
+      title: Joined Room
+      summary: Server confirms that a player joined a room.
+      payload:
+        $ref: '#/components/schemas/JoinedRoomMessage'
+    Offer:
+      name: Offer
+      title: WebRTC Offer
+      summary: WebRTC session offer.
+      payload:
+        $ref: '#/components/schemas/OfferMessage'
+    Answer:
+      name: Answer
+      title: WebRTC Answer
+      summary: WebRTC session answer.
+      payload:
+        $ref: '#/components/schemas/AnswerMessage'
+    Candidate:
+      name: Candidate
+      title: ICE Candidate
+      summary: WebRTC ICE candidate.
+      payload:
+        $ref: '#/components/schemas/CandidateMessage'
+    Error:
+      name: Error
+      title: Error
+      summary: Server error response.
+      payload:
+        $ref: '#/components/schemas/ErrorMessage'
+  schemas:
+    ConnectionStartMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: integer
+          const: 0
+          description: MessageType.ConnectionStart
+        data:
+          type: object
+          additionalProperties: false
+          required:
+            - playerId
+          properties:
+            playerId:
+              type: string
+    CreateRoomMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: integer
+          const: 1
+          description: MessageType.CreateRoom
+        data:
+          type: object
+          additionalProperties: false
+          required:
+            - playerName
+          properties:
+            playerName:
+              type: string
+    RoomCreatedMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: integer
+          const: 2
+          description: MessageType.RoomCreated
+        data:
+          type: object
+          additionalProperties: false
+          required:
+            - roomId
+            - hostId
+          properties:
+            roomId:
+              type: string
+            hostId:
+              type: string
+    JoinRoomMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: integer
+          const: 3
+          description: MessageType.JoinRoom
+        data:
+          type: object
+          additionalProperties: false
+          required:
+            - roomId
+            - playerName
+          properties:
+            roomId:
+              type: string
+            playerName:
+              type: string
+    GetStatusMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: integer
+          const: 4
+          description: MessageType.GetStatus
+        data:
+          type: object
+          additionalProperties: false
+          properties: {}
+    PlayerConnectedMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: integer
+          const: 5
+          description: MessageType.PlayerConnected
+        data:
+          type: object
+          additionalProperties: false
+          required:
+            - playerId
+            - playerName
+            - roomId
+          properties:
+            playerId:
+              type: string
+            playerName:
+              type: string
+            roomId:
+              type: string
+    JoinedRoomMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: integer
+          const: 6
+          description: MessageType.JoinedRoom
+        data:
+          type: object
+          additionalProperties: false
+          required:
+            - roomId
+          properties:
+            roomId:
+              type: string
+    OfferMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - peer
+        - orgPeer
+        - data
+        - roomId
+      properties:
+        type:
+          type: integer
+          const: 7
+          description: MessageType.Offer
+        peer:
+          type: number
+        orgPeer:
+          type: number
+        data:
+          type: string
+          description: WebRTC SDP offer
+        roomId:
+          type: string
+    AnswerMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - peer
+        - orgPeer
+        - data
+        - roomId
+      properties:
+        type:
+          type: integer
+          const: 8
+          description: MessageType.Answer
+        peer:
+          type: number
+        orgPeer:
+          type: number
+        data:
+          type: string
+          description: WebRTC SDP answer
+        roomId:
+          type: string
+    CandidateMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - peer
+        - orgPeer
+        - mid
+        - index
+        - sdp
+        - roomId
+      properties:
+        type:
+          type: integer
+          const: 9
+          description: MessageType.Candidate
+        peer:
+          type: number
+        orgPeer:
+          type: number
+        mid:
+          type:
+            - string
+            - 'null'
+        index:
+          type:
+            - integer
+            - 'null'
+          minimum: 0
+        sdp:
+          type: string
+          description: ICE candidate SDP
+        roomId:
+          type: string
+    ErrorMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: integer
+          const: 10
+          description: MessageType.Error
+        data:
+          type: object
+          additionalProperties: false
+          required:
+            - message
+          properties:
+            message:
+              type: string
