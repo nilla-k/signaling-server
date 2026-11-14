@@ -84,30 +84,24 @@ export const ErrorMessageSchema = z.object({
 
 export const OfferMessageSchema = z.object({
   type: z.literal(MessageType.Offer),
-  peer: z.string(),
-  orgPeer: z.string(),
-  data: z.object({
-    type: z.string(),
-    sdp: z.string(),
-  }),
+  peer: z.number(),
+  orgPeer: z.number(),
+  data: z.string(),
   roomId: z.string(),
 }).strict();
 
 export const AnswerMessageSchema = z.object({
   type: z.literal(MessageType.Answer),
-  peer: z.string(),
-  orgPeer: z.string(),
-  data: z.object({
-    type: z.string(),
-    sdp: z.string(),
-  }),
+  peer: z.number(),
+  orgPeer: z.number(),
+  data: z.string(),
   roomId: z.string(),
 }).strict();
 
 export const CandidateMessageSchema = z.object({
   type: z.literal(MessageType.Candidate),
-  peer: z.string(),
-  orgPeer: z.string(),
+  peer: z.number(),
+  orgPeer: z.number(),
   mid: z.string().nullable(),
   index: z.number().int().nonnegative().nullable(),
   sdp: z.string(),
