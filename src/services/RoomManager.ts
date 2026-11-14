@@ -1,5 +1,5 @@
 import { MessageType, RoomCreatedMessage } from '../types/messages.ts'
-import { Either, left, right } from '../types/utils.js'
+import { AppError, Either, left, right } from '../types/utils.js'
 import { Player } from './models/Player.js'
 import { Room } from './models/Room.js'
 
@@ -14,10 +14,10 @@ class RoomManager {
 	 * @param player - Player which is creating the room.
 	 * @returns A string with RoomCreated message containing room ID and host ID on success, Error if player is already in an existing room.
 	 */
-	public createRoom = (player: Player): Either<Error, string> => {
+	public createRoom = (player: Player): Either<AppError, string> => {
 		if (this.getPlayerRoom(player)) {
 			return left(
-				Error(
+				new AppError(
 					`Cannot create room - already in room ${this.getPlayerRoom(player)?.id}`
 				)
 			)
@@ -45,14 +45,14 @@ class RoomManager {
 	 * @param player - Player object to add
 	 * @returns Room that was joined on sucess, Error if room is not found
 	 */
-	public joinRoom = (roomId: string, player: Player): Either<Error, Room> => {
+	public joinRoom = (roomId: string, player: Player): Either<AppError, Room> => {
 		const maybeRoom = this.rooms.get(roomId.toUpperCase())
 
 		if (maybeRoom) {
 			maybeRoom.players.set(player.id, player)
 			return right(maybeRoom)
 		} else {
-			return left(Error(`Room ${roomId} not found`))
+			return left(new AppError(`Room ${roomId} not found`))
 		}
 	}
 

@@ -1,18 +1,19 @@
 import { RawData } from 'ws'
 import { JoinedRoomMessage, MessageSchema, MessageType, PlayerConnectedMessage } from '../types/messages.js'
-import { Either, left, right } from '../types/utils.js'
+import { AppError, Either, left, right } from '../types/utils.js'
 import { roomManager } from '../services/RoomManager.js'
 import { Player } from '../services/models/Player.js'
 
 export const handleMessage = (
 	data: RawData,
 	player: Player
-): Either<Error, string> => {
+): Either<AppError, string> => {
 	try {
 		const parsed = JSON.parse(data.toString())
 		const result = MessageSchema.safeParse(parsed)
 		if (!result.success) {
-			throw Error(`Invalid message schema received: ${JSON.stringify(result.error.issues)}`)
+			console.error(`Invalid message schema received: ${JSON.stringify(result.error.issues)}`)
+			throw new AppError("Invalid message schema received")
 		}
 
 		const message = result.data
@@ -40,7 +41,7 @@ export const handleMessage = (
 
 				const roomId = message.data?.roomId
 				if (!roomId) {
-					return left(Error('Room ID missing from message body'))
+					return left(new AppError('Room ID missing from message body'))
 				}
 
 				const errorOrRoom = roomManager.joinRoom(roomId, player)
@@ -95,13 +96,13 @@ export const handleMessage = (
 				// Pass data directly between peers for any message for establishing RTC connection
 				const room = roomManager.getRoom(message.roomId)
 				if (!room) {
-					return left(Error('Error finding peer: room not found'))
+					return left(new AppError('Error finding peer: room not found'))
 				}
 
 				const targetPlayer = room.players.get(message.peer.toString())
 
 				if (!targetPlayer) {
-					return left(Error('Error finding peer: player not found'))
+					return left(new AppError('Error finding peer: player not found'))
 				}
 
 				targetPlayer.socket.send(JSON.stringify(message))
@@ -109,9 +110,13 @@ export const handleMessage = (
 				return right('')
 			}
 			default:
-				return left(Error('Received unknown or missing message type.'))
+				return left(new AppError('Received unknown or missing message type.'))
 		}
-	} catch (e) {
-		return left(Error(`${e}`))
+	} catch (e: unknown) {
+		if (e instanceof AppError) {
+			return left(e)
+		} else {
+			return left(new AppError(`${e}`))
+		}
 	}
 }

@@ -1,6 +1,6 @@
 import { WebSocketServer } from 'ws'
 import { handleMessage } from './handlers/messageHandler.ts'
-import { Either } from './types/utils.ts'
+import { AppError, Either } from './types/utils.ts'
 import { Player } from './services/models/Player.ts'
 import { ConnectionStartMessage, ErrorMessage, MessageType } from './types/messages.ts'
 
@@ -22,7 +22,7 @@ server.on('connection', (socket) => {
 
 	// Message handling
 	socket.on('message', (data) => {
-		const response: Either<Error, string> = handleMessage(data, player)
+		const response: Either<AppError, string> = handleMessage(data, player)
 
 		if (response.tag === 'left') {
 			const errorMessage: ErrorMessage = {
