@@ -1,5 +1,5 @@
 import { RawData } from 'ws'
-import { Message, MessageType } from '../types/messages.js'
+import { JoinedRoomMessage, MessageType, PlayerConnectedMessage } from '../types/messages.js'
 import { Either, left, right } from '../types/utils.js'
 import { roomManager } from '../services/RoomManager.js'
 import { Player } from '../services/models/Player.js'
@@ -45,12 +45,12 @@ export const handleMessage = (
 				const room = errorOrRoom.value
 				room.players.forEach((p) => {
 					// send new player info to existing players
-					const newPlayerConnected: Message = {
+					const newPlayerConnected: PlayerConnectedMessage = {
 						type: MessageType.PlayerConnected,
 						data: {
 							playerId: player.id,
 							playerName: player.name,
-							room: room.id,
+							roomId: room.id,
 						},
 					}
 					if (p.id !== player.id) {
@@ -58,12 +58,12 @@ export const handleMessage = (
 					}
 
 					// send existing player info to new player
-					const existingPlayerConnected: Message = {
+					const existingPlayerConnected: PlayerConnectedMessage = {
 						type: MessageType.PlayerConnected,
 						data: {
 							playerId: p.id,
 							playerName: p.name,
-							room: room.id,
+							roomId: room.id,
 						},
 					}
 					if (p.id !== player.id) {
@@ -71,10 +71,10 @@ export const handleMessage = (
 					}
 				})
 
-				const successMessage: Message = {
+				const successMessage: JoinedRoomMessage = {
 					type: MessageType.JoinedRoom,
 					data: {
-						room: room.id,
+						roomId: room.id,
 					},
 				}
 

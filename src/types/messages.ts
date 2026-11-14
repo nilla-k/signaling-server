@@ -18,7 +18,60 @@ export enum MessageType {
 	Error = 10,
 }
 
-export type Message = {
+export interface Message {
 	type: MessageType
 	data: object
+}
+
+export interface ConnectionStartMessage extends Message {
+	type: MessageType.ConnectionStart,
+	data: {
+		playerId: string, // TODO: Key changed, need to update client
+	}
+}
+
+export interface CreateRoomMessage extends Message {
+	type: MessageType.CreateRoom,
+	data: {
+		playerName: string, // TODO: Key changed, need to update client
+	}
+}
+
+export interface RoomCreatedMessage extends Message {
+	type: MessageType.RoomCreated,
+	data: {
+		roomId: string,
+		hostId: string
+	}
+}
+
+export interface JoinRoomMessage extends Message {
+	type: MessageType.JoinRoom
+	data: {
+		roomId: string,
+		playerName: string, // TODO: Key changed, need to update client
+	}
+}
+
+export interface PlayerConnectedMessage extends Message {
+	type: MessageType.PlayerConnected,
+	data: {
+		playerId: string,
+		playerName: string,
+		roomId: string // TODO: Key changed, need to update client
+	}
+}
+
+export interface JoinedRoomMessage extends Message {
+	type: MessageType.JoinedRoom,
+	data: {
+		roomId: string // TODO: Key changed, need to update client
+	}
+}
+
+export interface ErrorMessage extends Message {
+	type: MessageType.Error,
+	data: {
+		message: string
+	}
 }

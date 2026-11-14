@@ -1,4 +1,4 @@
-import { Message, MessageType } from '../types/messages.ts'
+import { MessageType, RoomCreatedMessage } from '../types/messages.ts'
 import { Either, left, right } from '../types/utils.js'
 import { Player } from './models/Player.js'
 import { Room } from './models/Room.js'
@@ -28,7 +28,7 @@ class RoomManager {
 
 		this.rooms.set(newRoom.id, newRoom)
 
-		const successMessage: Message = {
+		const successMessage: RoomCreatedMessage = {
 			type: MessageType.RoomCreated,
 			data: {
 				roomId: newRoom.id,
