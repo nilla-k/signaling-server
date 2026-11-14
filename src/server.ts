@@ -44,3 +44,4 @@ server.on('connection', (socket) => {
 })
 
 console.log(`WebSocket server is running on ws://localhost:${port}`)
+console.log('Node version:', process.version)
