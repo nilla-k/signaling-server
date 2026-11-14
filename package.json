@@ -4,6 +4,9 @@
 	"description": "This will one day be a signaling server and it will be good",
 	"main": "index.js",
 	"type": "module",
+	"engines": {
+		"node": ">=24.22.1"
+	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "tsx --watch src/server.ts",
