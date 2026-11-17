@@ -23,8 +23,7 @@ class RoomManager {
 			)
 		}
 
-		const newRoom = new Room()
-		newRoom.players.set(player.id, player)
+		const newRoom = new Room(player)
 
 		this.rooms.set(newRoom.id, newRoom)
 
@@ -49,7 +48,7 @@ class RoomManager {
 		const maybeRoom = this.rooms.get(roomId.toUpperCase())
 
 		if (maybeRoom) {
-			maybeRoom.players.set(player.id, player)
+			maybeRoom.addPlayer(player)
 			return right(maybeRoom)
 		} else {
 			return left(new AppError(`Room ${roomId} not found`))
