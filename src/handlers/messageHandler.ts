@@ -57,6 +57,7 @@ export const handleMessage = (
 						data: {
 							playerId: player.id,
 							playerName: player.name,
+							isHost: player.id === room.hostId,
 							roomId: room.id,
 						},
 					}
@@ -70,6 +71,7 @@ export const handleMessage = (
 						data: {
 							playerId: p.id,
 							playerName: p.name,
+							isHost: p.id === room.hostId,
 							roomId: room.id,
 						},
 					}

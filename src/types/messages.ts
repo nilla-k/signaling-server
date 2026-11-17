@@ -63,6 +63,7 @@ export const PlayerConnectedMessageSchema = z.object({
   data: z.object({
     playerId: z.string(),
     playerName: z.string(),
+    isHost: z.boolean(),
     roomId: z.string(),
   }).strict(),
 }).strict();

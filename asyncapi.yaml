@@ -251,12 +251,15 @@ components:
           required:
             - playerId
             - playerName
+            - isHost
             - roomId
           properties:
             playerId:
               type: string
             playerName:
               type: string
+            isHost:
+              type: boolean
             roomId:
               type: string
     JoinedRoomMessage:
