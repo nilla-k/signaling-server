@@ -89,6 +89,9 @@ export const handleMessage = (
 			}
 			case MessageType.GetStatus:
 				return right(roomManager.getStatus(player))
+			
+			case MessageType.LeaveRoom:
+				return right(roomManager.removePlayerFromRoom(player))
 
 			case MessageType.Answer:
 			case MessageType.Candidate:

@@ -17,7 +17,8 @@ export enum MessageType {
 	Offer = 7,
 	Answer = 8,
 	Candidate = 9,
-	Error = 10,
+  Error = 10,
+  LeaveRoom = 11,
 }
 
 // Application messages
@@ -80,6 +81,10 @@ export const ErrorMessageSchema = z.object({
   }).strict(),
 }).strict();
 
+export const LeaveRoomMessageSchema = z.object({
+  type: z.literal(MessageType.LeaveRoom)
+}).strict();
+
 // WebRTC signalling messages
 
 export const OfferMessageSchema = z.object({
@@ -121,6 +126,7 @@ export const MessageSchema = z.discriminatedUnion("type", [
   OfferMessageSchema,
   AnswerMessageSchema,
   CandidateMessageSchema,
+  LeaveRoomMessageSchema
 ]);
 
 // Inferred types
