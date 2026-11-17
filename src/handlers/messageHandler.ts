@@ -1,15 +1,23 @@
 import { RawData } from 'ws'
-import { Message, MessageType } from '../types/messages.js'
-import { Either, left, right } from '../types/utils.js'
+import { JoinedRoomMessage, MessageSchema, MessageType, PlayerConnectedMessage } from '../types/messages.js'
+import { AppError, Either, left, right } from '../types/utils.js'
 import { roomManager } from '../services/RoomManager.js'
 import { Player } from '../services/models/Player.js'
 
 export const handleMessage = (
 	data: RawData,
 	player: Player
-): Either<Error, string> => {
+): Either<AppError, string> => {
 	try {
-		const message = JSON.parse(data.toString())
+		const parsed = JSON.parse(data.toString())
+		const result = MessageSchema.safeParse(parsed)
+		if (!result.success) {
+			console.error(`Invalid message schema received: ${JSON.stringify(result.error.issues)}`)
+			throw new AppError("Invalid message schema received")
+		}
+
+		const message = result.data
+		
 		if (
 			message.type !== MessageType.Answer &&
 			message.type !== MessageType.Offer &&
@@ -18,23 +26,22 @@ export const handleMessage = (
 			console.log(`Received message: ${data} from player ${player.id}`)
 		}
 
-
 		switch (message.type) {
 			case MessageType.CreateRoom:
-				if (message.data.name) {
-					player.setName(message.data.name)
+				if (message.data.playerName) {
+					player.setName(message.data.playerName)
 				}
 
 				return roomManager.createRoom(player)
 
 			case MessageType.JoinRoom: {
-				if (message.data.name) {
-					player.setName(message.data.name)
+				if (message.data.playerName) {
+					player.setName(message.data.playerName)
 				}
 
 				const roomId = message.data?.roomId
 				if (!roomId) {
-					return left(Error('Room ID missing from message body'))
+					return left(new AppError('Room ID missing from message body'))
 				}
 
 				const errorOrRoom = roomManager.joinRoom(roomId, player)
@@ -45,12 +52,12 @@ export const handleMessage = (
 				const room = errorOrRoom.value
 				room.players.forEach((p) => {
 					// send new player info to existing players
-					const newPlayerConnected: Message = {
+					const newPlayerConnected: PlayerConnectedMessage = {
 						type: MessageType.PlayerConnected,
 						data: {
 							playerId: player.id,
 							playerName: player.name,
-							room: room.id,
+							roomId: room.id,
 						},
 					}
 					if (p.id !== player.id) {
@@ -58,12 +65,12 @@ export const handleMessage = (
 					}
 
 					// send existing player info to new player
-					const existingPlayerConnected: Message = {
+					const existingPlayerConnected: PlayerConnectedMessage = {
 						type: MessageType.PlayerConnected,
 						data: {
 							playerId: p.id,
 							playerName: p.name,
-							room: room.id,
+							roomId: room.id,
 						},
 					}
 					if (p.id !== player.id) {
@@ -71,10 +78,10 @@ export const handleMessage = (
 					}
 				})
 
-				const successMessage: Message = {
+				const successMessage: JoinedRoomMessage = {
 					type: MessageType.JoinedRoom,
 					data: {
-						room: room.id,
+						roomId: room.id,
 					},
 				}
 
@@ -89,13 +96,13 @@ export const handleMessage = (
 				// Pass data directly between peers for any message for establishing RTC connection
 				const room = roomManager.getRoom(message.roomId)
 				if (!room) {
-					return left(Error('Error finding peer: room not found'))
+					return left(new AppError('Error finding peer: room not found'))
 				}
 
 				const targetPlayer = room.players.get(message.peer.toString())
 
 				if (!targetPlayer) {
-					return left(Error('Error finding peer: player not found'))
+					return left(new AppError('Error finding peer: player not found'))
 				}
 
 				targetPlayer.socket.send(JSON.stringify(message))
@@ -103,9 +110,13 @@ export const handleMessage = (
 				return right('')
 			}
 			default:
-				return left(Error('Received unknown or missing message type.'))
+				return left(new AppError('Received unknown or missing message type.'))
 		}
-	} catch (e) {
-		return left(Error(`${e}`))
+	} catch (e: unknown) {
+		if (e instanceof AppError) {
+			return left(e)
+		} else {
+			return left(new AppError(`${e}`))
+		}
 	}
 }
