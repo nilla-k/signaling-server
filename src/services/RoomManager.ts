@@ -92,6 +92,22 @@ class RoomManager {
 
 		return null
 	}
+
+	public removePlayerFromRoom = (player: Player): string => {
+		const playerRoom = this.getPlayerRoom(player)
+		if (playerRoom) {			
+			const arePlayersRemaining = playerRoom?.removePlayer(player)
+
+			if (arePlayersRemaining) {
+				return `Player removed from room ${playerRoom.id}`
+			} else {
+				this.rooms.delete(playerRoom?.id)
+				return `Player removed from room ${playerRoom.id} - no other players left, closing room.`
+			}
+		} else {
+			return "Player not in any room."
+		}
+	}
 }
 
 export const roomManager = new RoomManager()

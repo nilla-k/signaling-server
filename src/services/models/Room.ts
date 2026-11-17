@@ -27,6 +27,30 @@ export class Room {
 	 */
 	public addPlayer(player: Player) {
 		this.players.set(player.id, player)
+		console.log(`Player ${player.id} joined room ${this.id}`)
 	}
 
+	/**
+	 * 
+	 * @param player Player object to remove from room. If player is host, host will be re-assigned.
+	 * @returns `true` if player removed successfully. `false` if player is the only one remaining in room.
+	 */
+	public removePlayer(player: Player): boolean {
+		if (this.players.size >= 2) {
+			this.players.delete(player.id)
+			
+			const nextPlayerId = this.players.entries().next().value?.[0]
+
+			if (player.id === this.hostId && nextPlayerId) {
+				if (nextPlayerId) {
+					console.log(`Re-assigning host of room ${this.id} to player ${nextPlayerId}.`)
+					this.hostId = nextPlayerId
+				}
+			}
+
+			return true
+		}
+
+		return false
+	}
 }
