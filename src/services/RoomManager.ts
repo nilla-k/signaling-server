@@ -23,8 +23,7 @@ class RoomManager {
 			)
 		}
 
-		const newRoom = new Room()
-		newRoom.players.set(player.id, player)
+		const newRoom = new Room(player)
 
 		this.rooms.set(newRoom.id, newRoom)
 
@@ -49,7 +48,7 @@ class RoomManager {
 		const maybeRoom = this.rooms.get(roomId.toUpperCase())
 
 		if (maybeRoom) {
-			maybeRoom.players.set(player.id, player)
+			maybeRoom.addPlayer(player)
 			return right(maybeRoom)
 		} else {
 			return left(new AppError(`Room ${roomId} not found`))
@@ -92,6 +91,22 @@ class RoomManager {
 		}
 
 		return null
+	}
+
+	public removePlayerFromRoom = (player: Player): string => {
+		const playerRoom = this.getPlayerRoom(player)
+		if (playerRoom) {			
+			const arePlayersRemaining = playerRoom?.removePlayer(player)
+
+			if (arePlayersRemaining) {
+				return `Player removed from room ${playerRoom.id}`
+			} else {
+				this.rooms.delete(playerRoom?.id)
+				return `Player removed from room ${playerRoom.id} - no other players left, closing room.`
+			}
+		} else {
+			return "Player not in any room."
+		}
 	}
 }
 

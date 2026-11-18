@@ -3,6 +3,7 @@ import { handleMessage } from './handlers/messageHandler.ts'
 import { AppError, Either } from './types/utils.ts'
 import { Player } from './services/models/Player.ts'
 import { ConnectionStartMessage, ErrorMessage, MessageType } from './types/messages.ts'
+import { roomManager } from './services/RoomManager.ts'
 
 const port = Number(process.env.port) || 8080
 const server = new WebSocketServer({ port: port })
@@ -38,8 +39,8 @@ server.on('connection', (socket) => {
 	})
 
 	socket.on('close', () => {
-		// TODO: Cleanup hosted rooms on connection close
-		console.log(`Player ${player.id} has disconnected.`)
+		const result = roomManager.removePlayerFromRoom(player)
+		console.log(`Player ${player.id} has disconnected: ${result}`)
 	})
 })
 

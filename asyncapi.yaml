@@ -34,6 +34,8 @@ channels:
         $ref: '#/components/messages/CreateRoom'
       JoinRoom:
         $ref: '#/components/messages/JoinRoom'
+      LeaveRoom:
+        $ref: '#/components/messages/LeaveRoom'
       GetStatus:
         $ref: '#/components/messages/GetStatus'
   relay:
@@ -112,6 +114,12 @@ components:
       summary: Server confirms that a player joined a room.
       payload:
         $ref: '#/components/schemas/JoinedRoomMessage'
+    LeaveRoom:
+      name: LeaveRoom
+      title: Leave Room
+      summary: Client requests to leave a room.
+      payload:
+        $ref: '#/components/schemas/LeaveRoomMessage'
     Offer:
       name: Offer
       title: WebRTC Offer
@@ -251,12 +259,15 @@ components:
           required:
             - playerId
             - playerName
+            - isHost
             - roomId
           properties:
             playerId:
               type: string
             playerName:
               type: string
+            isHost:
+              type: boolean
             roomId:
               type: string
     JoinedRoomMessage:
@@ -278,6 +289,16 @@ components:
           properties:
             roomId:
               type: string
+    LeaveRoomMessage:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+      properties:
+        type:
+          type: integer
+          const: 11
+          description: MessageType.LeaveRoom
     OfferMessage:
       type: object
       additionalProperties: false

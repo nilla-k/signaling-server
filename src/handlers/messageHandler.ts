@@ -57,6 +57,7 @@ export const handleMessage = (
 						data: {
 							playerId: player.id,
 							playerName: player.name,
+							isHost: player.id === room.hostId,
 							roomId: room.id,
 						},
 					}
@@ -70,6 +71,7 @@ export const handleMessage = (
 						data: {
 							playerId: p.id,
 							playerName: p.name,
+							isHost: p.id === room.hostId,
 							roomId: room.id,
 						},
 					}
@@ -89,6 +91,9 @@ export const handleMessage = (
 			}
 			case MessageType.GetStatus:
 				return right(roomManager.getStatus(player))
+			
+			case MessageType.LeaveRoom:
+				return right(roomManager.removePlayerFromRoom(player))
 
 			case MessageType.Answer:
 			case MessageType.Candidate:
